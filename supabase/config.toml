@@ -1,1 +1,10 @@
 project_id = "ivzywojdudwsteiqtflx"
+
+[functions.upload-video]
+verify_jwt = false
+
+[functions.record-view]
+verify_jwt = false
+
+[functions.request-payout]
+verify_jwt = false
