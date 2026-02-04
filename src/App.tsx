@@ -7,8 +7,12 @@ import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Feed from "./pages/Feed";
+import Shorts from "./pages/Shorts";
+import Community from "./pages/Community";
+import Trending from "./pages/Trending";
 import Dashboard from "./pages/Dashboard";
 import Upload from "./pages/Upload";
+import AIGenerate from "./pages/AIGenerate";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,8 +28,12 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/feed" element={<Feed />} />
+            <Route path="/shorts" element={<Shorts />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/trending" element={<Trending />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/upload" element={<Upload />} />
+            <Route path="/ai-generate" element={<AIGenerate />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
