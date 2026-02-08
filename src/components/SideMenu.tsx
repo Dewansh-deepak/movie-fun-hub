@@ -70,6 +70,11 @@ const SideMenu = () => {
     },
   ];
 
+  const handleBackToWelcome = () => {
+    setOpen(false);
+    navigate("/");
+  };
+
   const handleLogout = async () => {
     await signOut();
     setOpen(false);
@@ -107,6 +112,16 @@ const SideMenu = () => {
         </SheetHeader>
 
         <div className="p-4 space-y-1">
+          {/* Back to Welcome Button */}
+          <button
+            onClick={handleBackToWelcome}
+            className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors mb-2 border border-border/50"
+          >
+            <LayoutDashboard className="w-5 h-5" />
+            <span className="flex-1 text-left font-medium">Back to Welcome</span>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
+          
           {menuItems.map((item, index) => (
             <button
               key={index}

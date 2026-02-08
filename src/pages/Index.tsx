@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Play, Video, Coins, TrendingUp, ArrowRight, Sparkles, IndianRupee, Users } from "lucide-react";
+import { Play, Video, TrendingUp, ArrowRight, Sparkles, IndianRupee, Users, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import Logo from "@/components/Logo";
 
@@ -8,8 +8,20 @@ const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  const handleSkip = () => {
+    navigate("/feed");
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      {/* Skip Button */}
+      <button
+        onClick={handleSkip}
+        className="fixed top-4 right-4 z-50 flex items-center gap-1 px-3 py-1.5 rounded-full bg-muted/80 backdrop-blur-sm text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        Skip <X className="w-4 h-4" />
+      </button>
+
       {/* Hero Section */}
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Background Gradient */}
@@ -56,10 +68,10 @@ const Index = () => {
             )}
           </div>
 
-          {/* Stats */}
+          {/* Stats - Updated to 60s */}
           <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
             <div className="glass rounded-xl p-4 border border-border/50">
-              <p className="font-display text-2xl md:text-3xl text-gradient">30s</p>
+              <p className="font-display text-2xl md:text-3xl text-gradient">60s</p>
               <p className="text-xs text-muted-foreground">Max Video</p>
             </div>
             <div className="glass rounded-xl p-4 border border-border/50">
@@ -98,7 +110,7 @@ const Index = () => {
                 Easy Upload
               </h3>
               <p className="text-muted-foreground text-sm">
-                Record or upload 30-second videos instantly
+                Upload 15-60s shorts or 10min long-form
               </p>
             </div>
 
@@ -167,7 +179,7 @@ const Index = () => {
               </div>
               <h3 className="font-semibold text-foreground mb-2">Upload</h3>
               <p className="text-sm text-muted-foreground">
-                Post 30-second videos or use AI
+                Post 60-second videos or use AI
               </p>
             </div>
 

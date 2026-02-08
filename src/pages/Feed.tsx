@@ -121,25 +121,42 @@ const Feed = () => {
     }
   };
 
-  // Touch/scroll handling
+  // Touch/scroll handling with left/right swipe for navigation
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
     let startY = 0;
+    let startX = 0;
     let startTime = 0;
 
     const handleTouchStart = (e: TouchEvent) => {
       startY = e.touches[0].clientY;
+      startX = e.touches[0].clientX;
       startTime = Date.now();
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
       const deltaY = startY - e.changedTouches[0].clientY;
+      const deltaX = startX - e.changedTouches[0].clientX;
       const deltaTime = Date.now() - startTime;
-      const velocity = Math.abs(deltaY / deltaTime);
+      const velocityY = Math.abs(deltaY / deltaTime);
+      const velocityX = Math.abs(deltaX / deltaTime);
 
-      if (Math.abs(deltaY) > 50 || velocity > 0.3) {
+      // Horizontal swipe detection (left = back, right = settings)
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 80) {
+        if (deltaX < 0) {
+          // Swipe right - go back to welcome
+          window.location.href = "/";
+        } else if (deltaX > 0) {
+          // Swipe left - go to settings (dashboard for now)
+          window.location.href = "/dashboard";
+        }
+        return;
+      }
+
+      // Vertical swipe for video navigation
+      if (Math.abs(deltaY) > 50 || velocityY > 0.3) {
         if (deltaY > 0) {
           handleScroll("down");
         } else {

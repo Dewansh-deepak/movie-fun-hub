@@ -18,6 +18,8 @@ import {
   CheckCircle,
   Clock,
   AlertCircle,
+  Zap,
+  Calculator,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -293,95 +295,160 @@ const Dashboard = () => {
 
         {/* Tab Content */}
         {activeTab === "overview" && (
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Payout Section */}
-            <div className="glass rounded-xl p-6">
-              <h3 className="font-display text-xl text-foreground mb-4 flex items-center gap-2">
-                <Wallet className="w-5 h-5 text-gold" />
-                Request Payout
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-muted-foreground">
-                    Available: {profile?.coins_balance?.toLocaleString() || 0} coins
-                    (₹{((profile?.coins_balance || 0) / 100).toFixed(2)})
-                  </Label>
-                </div>
-                <div>
-                  <Label htmlFor="payout">Coins to Withdraw (min 5000)</Label>
-                  <Input
-                    id="payout"
-                    type="number"
-                    value={payoutAmount}
-                    onChange={(e) => setPayoutAmount(e.target.value)}
-                    placeholder="5000"
-                    className="bg-muted"
-                  />
-                  {payoutAmount && (
-                    <p className="text-sm text-gold mt-1">
-                      = ₹{(parseInt(payoutAmount) / 100).toFixed(2)}
+          <div className="space-y-6">
+            {/* Video Length Stats & Calculator Row */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* 60s Video Stats */}
+              <div className="glass rounded-xl p-6">
+                <h3 className="font-display text-xl text-foreground mb-4 flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-gold" />
+                  60s Video Stats
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between py-2 border-b border-border/30">
+                    <span className="text-muted-foreground">Avg views (60s shorts)</span>
+                    <span className="font-bold text-gradient">4.1M views</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-border/30">
+                    <span className="text-muted-foreground">Sweet spot duration</span>
+                    <span className="font-bold text-gold">45-55 seconds</span>
+                  </div>
+                  <div className="flex items-center justify-between py-2 border-b border-border/30">
+                    <span className="text-muted-foreground">Virality boost</span>
+                    <span className="font-bold text-green-500">+340%</span>
+                  </div>
+                  <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
+                    <p className="text-xs text-muted-foreground">
+                      <span className="text-primary font-medium">Pro tip:</span> 60-second videos get maximum algorithmic boost per YouTube/TikTok data.
                     </p>
-                  )}
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="upi">UPI ID</Label>
-                  <Input
-                    id="upi"
-                    value={upiId}
-                    onChange={(e) => setUpiId(e.target.value)}
-                    placeholder="yourname@upi"
-                    className="bg-muted"
-                  />
+              </div>
+
+              {/* Coin Calculator */}
+              <div className="glass rounded-xl p-6">
+                <h3 className="font-display text-xl text-foreground mb-4 flex items-center gap-2">
+                  <Calculator className="w-5 h-5 text-gold" />
+                  Earnings Calculator
+                </h3>
+                <div className="space-y-4">
+                  <div className="text-center py-4 bg-gold/10 rounded-xl border border-gold/20">
+                    <p className="text-3xl font-bold text-gradient-gold">₹20</p>
+                    <p className="text-sm text-muted-foreground mt-1">per 1,000 views (shorts)</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 text-center">
+                    <div className="p-3 bg-muted rounded-lg">
+                      <p className="text-lg font-bold text-foreground">₹200</p>
+                      <p className="text-xs text-muted-foreground">10K views</p>
+                    </div>
+                    <div className="p-3 bg-muted rounded-lg">
+                      <p className="text-lg font-bold text-foreground">₹2,000</p>
+                      <p className="text-xs text-muted-foreground">100K views</p>
+                    </div>
+                    <div className="p-3 bg-muted rounded-lg">
+                      <p className="text-lg font-bold text-foreground">₹20,000</p>
+                      <p className="text-xs text-muted-foreground">1M views</p>
+                    </div>
+                    <div className="p-3 bg-gradient-gold rounded-lg">
+                      <p className="text-lg font-bold text-secondary-foreground">₹82,000</p>
+                      <p className="text-xs text-secondary-foreground/80">4.1M views (avg)</p>
+                    </div>
+                  </div>
                 </div>
-                <Button
-                  variant="gold"
-                  className="w-full gap-2"
-                  onClick={handleRequestPayout}
-                  disabled={
-                    requestingPayout ||
-                    !payoutAmount ||
-                    parseInt(payoutAmount) < 5000 ||
-                    (profile?.coins_balance || 0) < parseInt(payoutAmount || "0")
-                  }
-                >
-                  <IndianRupee className="w-4 h-4" />
-                  {requestingPayout ? "Processing..." : "Request Payout"}
-                </Button>
               </div>
             </div>
 
-            {/* Recent Activity */}
-            <div className="glass rounded-xl p-6">
-              <h3 className="font-display text-xl text-foreground mb-4">
-                Recent Activity
-              </h3>
-              <div className="space-y-3">
-                {transactions.slice(0, 5).map((tx) => (
-                  <div
-                    key={tx.id}
-                    className="flex items-center justify-between py-2 border-b border-border/30"
-                  >
-                    <div>
-                      <p className="text-sm text-foreground">{tx.description}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(tx.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <span
-                      className={`font-bold ${
-                        tx.amount > 0 ? "text-green-500" : "text-crimson"
-                      }`}
-                    >
-                      {tx.amount > 0 ? "+" : ""}
-                      {tx.amount}
-                    </span>
+            {/* Payout & Activity Row */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Payout Section */}
+              <div className="glass rounded-xl p-6">
+                <h3 className="font-display text-xl text-foreground mb-4 flex items-center gap-2">
+                  <Wallet className="w-5 h-5 text-gold" />
+                  Request Payout
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-muted-foreground">
+                      Available: {profile?.coins_balance?.toLocaleString() || 0} coins
+                      (₹{((profile?.coins_balance || 0) / 100).toFixed(2)})
+                    </Label>
                   </div>
-                ))}
-                {transactions.length === 0 && (
-                  <p className="text-muted-foreground text-center py-4">
-                    No transactions yet
-                  </p>
-                )}
+                  <div>
+                    <Label htmlFor="payout">Coins to Withdraw (min 5000)</Label>
+                    <Input
+                      id="payout"
+                      type="number"
+                      value={payoutAmount}
+                      onChange={(e) => setPayoutAmount(e.target.value)}
+                      placeholder="5000"
+                      className="bg-muted"
+                    />
+                    {payoutAmount && (
+                      <p className="text-sm text-gold mt-1">
+                        = ₹{(parseInt(payoutAmount) / 100).toFixed(2)}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="upi">UPI ID</Label>
+                    <Input
+                      id="upi"
+                      value={upiId}
+                      onChange={(e) => setUpiId(e.target.value)}
+                      placeholder="yourname@upi"
+                      className="bg-muted"
+                    />
+                  </div>
+                  <Button
+                    variant="gold"
+                    className="w-full gap-2"
+                    onClick={handleRequestPayout}
+                    disabled={
+                      requestingPayout ||
+                      !payoutAmount ||
+                      parseInt(payoutAmount) < 5000 ||
+                      (profile?.coins_balance || 0) < parseInt(payoutAmount || "0")
+                    }
+                  >
+                    <IndianRupee className="w-4 h-4" />
+                    {requestingPayout ? "Processing..." : "Request Payout"}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Recent Activity */}
+              <div className="glass rounded-xl p-6">
+                <h3 className="font-display text-xl text-foreground mb-4">
+                  Recent Activity
+                </h3>
+                <div className="space-y-3">
+                  {transactions.slice(0, 5).map((tx) => (
+                    <div
+                      key={tx.id}
+                      className="flex items-center justify-between py-2 border-b border-border/30"
+                    >
+                      <div>
+                        <p className="text-sm text-foreground">{tx.description}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(tx.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <span
+                        className={`font-bold ${
+                          tx.amount > 0 ? "text-green-500" : "text-crimson"
+                        }`}
+                      >
+                        {tx.amount > 0 ? "+" : ""}
+                        {tx.amount}
+                      </span>
+                    </div>
+                  ))}
+                  {transactions.length === 0 && (
+                    <p className="text-muted-foreground text-center py-4">
+                      No transactions yet
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
