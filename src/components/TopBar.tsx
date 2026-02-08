@@ -1,4 +1,5 @@
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "./Logo";
 import SideMenu from "./SideMenu";
@@ -10,6 +11,8 @@ interface TopBarProps {
 }
 
 const TopBar = ({ showCategories, category, setCategory }: TopBarProps) => {
+  const navigate = useNavigate();
+  
   const categories = [
     { id: "all", label: "For You" },
     { id: "drama", label: "Drama" },
@@ -30,6 +33,14 @@ const TopBar = ({ showCategories, category, setCategory }: TopBarProps) => {
           <Button variant="ghost" size="icon" className="hover:bg-muted relative">
             <Bell className="w-5 h-5" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent rounded-full" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="hover:bg-muted"
+            onClick={() => navigate("/")}
+          >
+            <X className="w-5 h-5" />
           </Button>
         </div>
       </div>

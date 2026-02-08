@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Mail, Lock, User, IndianRupee, Sparkles } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, IndianRupee, Sparkles, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import Logo from "@/components/Logo";
@@ -47,6 +47,14 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate("/")}
+        className="fixed top-4 left-4 z-50 flex items-center gap-1 px-3 py-1.5 rounded-full bg-muted/80 backdrop-blur-sm text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" /> Back
+      </button>
+
       {/* Gradient Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-instagram opacity-10 blur-[120px] rounded-full" />

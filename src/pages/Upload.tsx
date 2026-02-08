@@ -13,9 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Upload as UploadIcon, Video, X, CheckCircle } from "lucide-react";
+import { ArrowLeft, Upload as UploadIcon, Video, X, CheckCircle, Clock, Zap, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const categories = [
   { value: "drama", label: "Drama" },
@@ -24,18 +25,53 @@ const categories = [
   { value: "romance", label: "Romance" },
 ];
 
+type VideoType = "shorts" | "longform";
+
+interface VideoTypeOption {
+  value: VideoType;
+  label: string;
+  duration: string;
+  coins: string;
+  recommended?: boolean;
+  maxSize: string;
+}
+
+const videoTypes: VideoTypeOption[] = [
+  { 
+    value: "shorts", 
+    label: "Shorts", 
+    duration: "15-60 seconds", 
+    coins: "2 coins/100 views",
+    recommended: true,
+    maxSize: "50MB"
+  },
+  { 
+    value: "longform", 
+    label: "Long-form", 
+    duration: "1-10 minutes", 
+    coins: "5 coins/500 views",
+    maxSize: "100MB"
+  },
+];
+
 const Upload = () => {
   const { profile, user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [videoDuration, setVideoDuration] = useState<number>(0);
+  const [videoType, setVideoType] = useState<VideoType>("shorts");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [showTrimWarning, setShowTrimWarning] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const maxDuration = videoType === "shorts" ? 60 : 600; // 60s for shorts, 10min for longform
+  const minDuration = videoType === "shorts" ? 15 : 60; // 15s for shorts, 1min for longform
+  const maxFileSize = videoType === "shorts" ? 50 : 100; // MB
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -56,9 +92,9 @@ const Upload = () => {
       return;
     }
 
-    // Validate file size (50MB max)
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error("Video file too large (max 50MB)");
+    // Validate file size based on video type
+    if (file.size > maxFileSize * 1024 * 1024) {
+      toast.error(`Video file too large (max ${maxFileSize}MB for ${videoType})`);
       return;
     }
 
@@ -72,9 +108,15 @@ const Upload = () => {
     const video = document.createElement("video");
     video.src = url;
     video.onloadedmetadata = () => {
-      setVideoDuration(Math.round(video.duration));
-      if (video.duration > 30) {
-        toast.warning("Video is longer than 30 seconds. It will be rejected.");
+      const duration = Math.round(video.duration);
+      setVideoDuration(duration);
+      
+      // Check if video exceeds max duration for shorts
+      if (videoType === "shorts" && duration > 60) {
+        setShowTrimWarning(true);
+        toast.warning("Video exceeds 60s. Consider trimming for maximum virality!");
+      } else if (duration < minDuration) {
+        toast.warning(`Video is too short (min ${minDuration}s for ${videoType})`);
       }
     };
   };
@@ -85,8 +127,13 @@ const Upload = () => {
       return;
     }
 
-    if (videoDuration > 30) {
-      toast.error("Video must be 30 seconds or less");
+    // Validate duration based on video type
+    if (videoType === "shorts" && videoDuration > maxDuration) {
+      toast.error(`Shorts must be ${maxDuration} seconds or less`);
+      return;
+    }
+    if (videoDuration < minDuration) {
+      toast.error(`${videoType === "shorts" ? "Shorts" : "Long-form"} must be at least ${minDuration} seconds`);
       return;
     }
 
@@ -99,6 +146,7 @@ const Upload = () => {
       formData.append("title", title);
       formData.append("description", description);
       formData.append("category", category);
+      formData.append("videoType", videoType);
 
       setUploadProgress(30);
 
@@ -128,10 +176,13 @@ const Upload = () => {
     setVideoFile(null);
     setVideoPreview(null);
     setVideoDuration(0);
+    setShowTrimWarning(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
+
+  const isDurationValid = videoDuration >= minDuration && videoDuration <= maxDuration;
 
   if (authLoading) {
     return (
@@ -162,10 +213,59 @@ const Upload = () => {
 
       <main className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="glass rounded-2xl p-6 md:p-8">
+          {/* Video Type Selector */}
+          <div className="mb-6">
+            <Label className="text-foreground mb-3 block">Video Type *</Label>
+            <div className="grid grid-cols-2 gap-3">
+              {videoTypes.map((type) => (
+                <button
+                  key={type.value}
+                  onClick={() => {
+                    setVideoType(type.value);
+                    clearVideo(); // Clear video when switching types
+                  }}
+                  className={`relative p-4 rounded-xl border-2 transition-all text-left ${
+                    videoType === type.value
+                      ? "border-gold bg-gold/10"
+                      : "border-border hover:border-border/80"
+                  }`}
+                >
+                  {type.recommended && (
+                    <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-accent text-[10px] font-bold rounded-full text-accent-foreground">
+                      RECOMMENDED
+                    </span>
+                  )}
+                  <div className="flex items-center gap-2 mb-2">
+                    {type.value === "shorts" ? (
+                      <Zap className="w-5 h-5 text-gold" />
+                    ) : (
+                      <Clock className="w-5 h-5 text-primary" />
+                    )}
+                    <span className="font-semibold text-foreground">{type.label}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{type.duration}</p>
+                  <p className="text-xs text-gold mt-1">{type.coins}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">Max: {type.maxSize}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 60s Virality Tip */}
+          {videoType === "shorts" && (
+            <div className="mb-6 p-3 bg-primary/10 rounded-lg border border-primary/20 flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-muted-foreground">
+                <span className="text-primary font-medium">Pro tip:</span> 60s = Maximum virality per YouTube data. 
+                The sweet spot is 45-55 seconds for best engagement.
+              </p>
+            </div>
+          )}
+
           {/* Video Upload Area */}
           <div className="mb-6">
             <Label className="text-foreground mb-2 block">
-              Video (Max 30 seconds, 50MB)
+              Video ({videoType === "shorts" ? "15-60s" : "1-10min"}, {maxFileSize}MB max)
             </Label>
             
             {videoPreview ? (
@@ -181,9 +281,16 @@ const Upload = () => {
                 >
                   <X className="w-4 h-4 text-white" />
                 </button>
-                <div className="absolute bottom-2 left-2 px-2 py-1 bg-black/60 rounded text-xs text-white">
-                  {videoDuration}s {videoDuration > 30 && "⚠️"}
+                <div className={`absolute bottom-2 left-2 px-2 py-1 rounded text-xs text-white ${
+                  isDurationValid ? "bg-green-500/80" : "bg-red-500/80"
+                }`}>
+                  {videoDuration}s {!isDurationValid && "⚠️"}
                 </div>
+                {showTrimWarning && (
+                  <div className="absolute bottom-2 right-2 px-2 py-1 bg-gold/80 rounded text-xs text-black font-medium">
+                    Consider trimming to 60s
+                  </div>
+                )}
               </div>
             ) : (
               <label className="block cursor-pointer">
@@ -193,7 +300,7 @@ const Upload = () => {
                     Click to select video
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    MP4, WebM, MOV up to 50MB
+                    MP4, WebM, MOV up to {maxFileSize}MB
                   </p>
                 </div>
                 <input
@@ -204,6 +311,21 @@ const Upload = () => {
                   className="hidden"
                 />
               </label>
+            )}
+
+            {/* Duration Progress Bar */}
+            {videoPreview && (
+              <div className="mt-3">
+                <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                  <span>{minDuration}s min</span>
+                  <span>{videoDuration}s current</span>
+                  <span>{maxDuration}s max</span>
+                </div>
+                <Progress 
+                  value={Math.min((videoDuration / maxDuration) * 100, 100)} 
+                  className={`h-2 ${!isDurationValid ? "[&>div]:bg-destructive" : "[&>div]:bg-green-500"}`}
+                />
+              </div>
             )}
           </div>
 
@@ -274,7 +396,7 @@ const Upload = () => {
             variant="gold"
             className="w-full gap-2"
             onClick={handleUpload}
-            disabled={uploading || !videoFile || !title || !category || videoDuration > 30}
+            disabled={uploading || !videoFile || !title || !category || !isDurationValid}
           >
             {uploading ? (
               <>Uploading...</>
@@ -286,7 +408,7 @@ const Upload = () => {
             ) : (
               <>
                 <UploadIcon className="w-5 h-5" />
-                Upload Video
+                Upload {videoType === "shorts" ? "Short" : "Video"}
               </>
             )}
           </Button>
@@ -295,7 +417,8 @@ const Upload = () => {
           <div className="mt-6 p-4 bg-gold/10 rounded-lg border border-gold/20">
             <h4 className="font-medium text-gold mb-2">💰 Earn from views!</h4>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Every 10 views = 1 coin</li>
+              <li>• Shorts: 2 coins per 100 views</li>
+              <li>• Long-form: 5 coins per 500 views</li>
               <li>• 100 coins = ₹1</li>
               <li>• Minimum payout: ₹50 (5000 coins)</li>
               <li>• Instant UPI withdrawal</li>
