@@ -1,19 +1,21 @@
 import { Home, Film, Plus, MessageCircle, TrendingUp } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useLanguage } from "@/hooks/useLanguage";
 import UploadModal from "./UploadModal";
 
 const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   const tabs = [
-    { id: "home", icon: Home, label: "Home", path: "/feed" },
-    { id: "shorts", icon: Film, label: "Shorts", path: "/shorts" },
-    { id: "upload", icon: Plus, label: "Create", path: null },
-    { id: "community", icon: MessageCircle, label: "Community", path: "/community" },
-    { id: "trending", icon: TrendingUp, label: "Trending", path: "/trending" },
+    { id: "home", icon: Home, label: t("home"), path: "/feed" },
+    { id: "shorts", icon: Film, label: t("shorts"), path: "/shorts" },
+    { id: "upload", icon: Plus, label: t("create"), path: null },
+    { id: "community", icon: MessageCircle, label: t("community"), path: "/community" },
+    { id: "trending", icon: TrendingUp, label: t("trending"), path: "/trending" },
   ];
 
   const handleTabClick = (tab: typeof tabs[0]) => {

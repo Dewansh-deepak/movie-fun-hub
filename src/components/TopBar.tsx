@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "./Logo";
 import SideMenu from "./SideMenu";
+import LanguageToggle from "./LanguageToggle";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface TopBarProps {
   showCategories?: boolean;
@@ -12,13 +14,14 @@ interface TopBarProps {
 
 const TopBar = ({ showCategories, category, setCategory }: TopBarProps) => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   
   const categories = [
-    { id: "all", label: "For You" },
-    { id: "drama", label: "Drama" },
-    { id: "horror", label: "Horror" },
-    { id: "comedy", label: "Comedy" },
-    { id: "romance", label: "Romance" },
+    { id: "all", label: t("forYou") },
+    { id: "drama", label: t("drama") },
+    { id: "horror", label: t("horror") },
+    { id: "comedy", label: t("comedy") },
+    { id: "romance", label: t("romance") },
   ];
 
   return (
@@ -27,6 +30,7 @@ const TopBar = ({ showCategories, category, setCategory }: TopBarProps) => {
         <SideMenu />
         <Logo size="small" />
         <div className="flex items-center gap-1">
+          <LanguageToggle />
           <Button variant="ghost" size="icon" className="hover:bg-muted">
             <Search className="w-5 h-5" />
           </Button>
