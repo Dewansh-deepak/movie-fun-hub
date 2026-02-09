@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 import { Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { toast } from "sonner";
 import TopBar from "@/components/TopBar";
@@ -38,6 +39,7 @@ const Feed = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { profile } = useAuth();
+  const { t } = useLanguage();
 
   const fetchVideos = useCallback(async () => {
     let query = supabase
@@ -255,12 +257,12 @@ const Feed = () => {
       <div className="min-h-screen bg-background">
         <TopBar showCategories category={category} setCategory={setCategory} />
         <div className="flex flex-col items-center justify-center h-screen text-center p-4">
-          <p className="text-muted-foreground mb-4">No videos yet in this category</p>
+          <p className="text-muted-foreground mb-4">{t("noVideos")}</p>
           <button
             onClick={() => setCategory("all")}
             className="px-6 py-2 rounded-full bg-gradient-instagram text-white font-medium"
           >
-            View All Videos
+            {t("viewAll")}
           </button>
         </div>
         <BottomNav />
