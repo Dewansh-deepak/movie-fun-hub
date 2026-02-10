@@ -13,7 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, Upload as UploadIcon, Video, X, CheckCircle, Clock, Zap, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Upload as UploadIcon, Video, X, CheckCircle, Clock, Zap, AlertTriangle, ShieldCheck } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useLanguage } from "@/hooks/useLanguage";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -67,7 +69,9 @@ const Upload = () => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showTrimWarning, setShowTrimWarning] = useState(false);
+  const [copyrightAgreed, setCopyrightAgreed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { t } = useLanguage();
 
   const maxDuration = videoType === "shorts" ? 60 : 600; // 60s for shorts, 10min for longform
   const minDuration = videoType === "shorts" ? 15 : 60; // 15s for shorts, 1min for longform
@@ -361,7 +365,7 @@ const Upload = () => {
           </div>
 
           {/* Category */}
-          <div className="mb-6">
+          <div className="mb-4">
             <Label className="text-foreground">Category *</Label>
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger className="bg-muted border-border">
@@ -375,6 +379,25 @@ const Upload = () => {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Copyright Checkbox */}
+          <div className="mb-6 p-4 bg-destructive/10 rounded-lg border border-destructive/20">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="copyright"
+                checked={copyrightAgreed}
+                onCheckedChange={(checked) => setCopyrightAgreed(checked === true)}
+                className="mt-0.5"
+              />
+              <div>
+                <label htmlFor="copyright" className="text-sm font-medium text-foreground cursor-pointer flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-green-500" />
+                  {t("copyrightCheckbox")}
+                </label>
+                <p className="text-xs text-destructive mt-1">{t("copyrightWarning")}</p>
+              </div>
+            </div>
           </div>
 
           {/* Upload Progress */}
@@ -396,7 +419,7 @@ const Upload = () => {
             variant="gold"
             className="w-full gap-2"
             onClick={handleUpload}
-            disabled={uploading || !videoFile || !title || !category || !isDurationValid}
+            disabled={uploading || !videoFile || !title || !category || !isDurationValid || !copyrightAgreed}
           >
             {uploading ? (
               <>Uploading...</>
