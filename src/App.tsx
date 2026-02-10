@@ -15,6 +15,7 @@ import Dashboard from "./pages/Dashboard";
 import Upload from "./pages/Upload";
 import AIGenerate from "./pages/AIGenerate";
 import NotFound from "./pages/NotFound";
+import CopyrightTermsDialog from "./components/CopyrightTermsDialog";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <CopyrightTermsDialog />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />

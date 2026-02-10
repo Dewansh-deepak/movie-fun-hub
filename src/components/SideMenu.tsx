@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -31,6 +32,7 @@ import {
   LogOut,
   ChevronRight,
   IndianRupee,
+  Flag,
 } from "lucide-react";
 import Logo from "./Logo";
 
@@ -145,6 +147,17 @@ const SideMenu = () => {
                 <ChevronRight className="w-4 h-4 text-muted-foreground" />
               </button>
             ))}
+          </div>
+
+          {/* Report Copyright */}
+          <div className="px-4 pt-2">
+            <button
+              onClick={() => { setOpen(false); toast.info("Copyright report feature coming soon"); }}
+              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-destructive/10 text-destructive/80 transition-colors border border-destructive/20"
+            >
+              <Flag className="w-5 h-5" />
+              <span className="flex-1 text-left font-medium text-sm">{t("reportCopyright")}</span>
+            </button>
           </div>
 
           <div className="p-4 border-t border-border/30 space-y-1">

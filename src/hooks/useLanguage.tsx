@@ -136,6 +136,12 @@ const translations = {
 
     // Language
     language: "Language",
+    copyrightCheckbox: "I am the owner of this content or it falls under fair use",
+    reportCopyright: "Report Copyright",
+    copyrightTermsTitle: "Copyright Policy",
+    copyrightTermsBody: "By using Reelspay, you agree that uploading copyrighted content without permission is strictly prohibited. Violation of copyright will result in permanent account ban. All DMCA notices will be handled promptly.",
+    copyrightTermsAgree: "I Agree",
+    copyrightWarning: "⚠️ Copyright violation → Account permanent ban",
   },
   hi: {
     appName: "Reelspay",
@@ -257,6 +263,12 @@ const translations = {
     creatorShorts: "क्रिएटर शॉर्ट्स",
 
     language: "भाषा",
+    copyrightCheckbox: "मैं इस content का owner हूँ या fair use है",
+    reportCopyright: "कॉपीराइट रिपोर्ट करें",
+    copyrightTermsTitle: "कॉपीराइट नीति",
+    copyrightTermsBody: "Reelspay का उपयोग करके, आप सहमत हैं कि बिना अनुमति के कॉपीराइट सामग्री अपलोड करना सख्त वर्जित है। कॉपीराइट उल्लंघन पर स्थायी खाता प्रतिबंध लगाया जाएगा। सभी DMCA नोटिस तुरंत संभाले जाएंगे।",
+    copyrightTermsAgree: "मैं सहमत हूँ",
+    copyrightWarning: "⚠️ कॉपीराइट उल्लंघन → खाता स्थायी प्रतिबंध",
   },
 };
 
