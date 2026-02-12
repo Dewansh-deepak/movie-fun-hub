@@ -130,7 +130,6 @@ serve(async (req) => {
 
     // Check video duration (max 60 seconds for shorts, 600 for longform)
     const duration = Math.round(cloudinaryResult.duration || 0);
-    const videoType = formData.get("videoType") as string || "shorts";
     const maxDuration = videoType === "longform" ? 600 : 60;
     if (duration > maxDuration) {
       return new Response(
