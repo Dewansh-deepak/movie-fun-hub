@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 const CLOUDINARY_CLOUD_NAME = Deno.env.get("CLOUDINARY_CLOUD_NAME") ?? "";
@@ -68,17 +68,24 @@ serve(async (req) => {
       );
     }
 
-    // Check file size (max 50MB)
-    if (videoFile.size > 50 * 1024 * 1024) {
+    // Check file size based on video type
+    const videoType = formData.get("videoType") as string || "shorts";
+    const maxFileSize = videoType === "longform" ? 100 : 50;
+    if (videoFile.size > maxFileSize * 1024 * 1024) {
       return new Response(
-        JSON.stringify({ error: "Video file too large (max 50MB)" }),
+        JSON.stringify({ error: `Video file too large (max ${maxFileSize}MB)` }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     // Upload to Cloudinary with auto-compression
     const cloudinarySecret = Deno.env.get("CLOUDINARY_API_SECRET");
-    if (!cloudinarySecret) {
+    if (!cloudinarySecret || !CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY) {
+      console.error("Missing Cloudinary config:", { 
+        hasSecret: !!cloudinarySecret, 
+        hasCloudName: !!CLOUDINARY_CLOUD_NAME, 
+        hasApiKey: !!CLOUDINARY_API_KEY 
+      });
       return new Response(
         JSON.stringify({ error: "Cloudinary not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -86,7 +93,8 @@ serve(async (req) => {
     }
 
     const timestamp = Math.floor(Date.now() / 1000);
-    const paramsToSign = `folder=aitube&resource_type=video&timestamp=${timestamp}&transformation=q_auto,f_auto`;
+    // Only sign params that are sent as form fields (alphabetical order, no resource_type)
+    const paramsToSign = `folder=reelspay&timestamp=${timestamp}`;
     
     // Create signature using SHA-1 (required by Cloudinary)
     const encoder = new TextEncoder();
@@ -100,9 +108,7 @@ serve(async (req) => {
     uploadFormData.append("api_key", CLOUDINARY_API_KEY);
     uploadFormData.append("timestamp", timestamp.toString());
     uploadFormData.append("signature", signature);
-    uploadFormData.append("folder", "aitube");
-    uploadFormData.append("resource_type", "video");
-    uploadFormData.append("transformation", "q_auto,f_auto");
+    uploadFormData.append("folder", "reelspay");
 
     const cloudinaryResponse = await fetch(
       `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`,
