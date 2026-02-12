@@ -6,8 +6,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const CLOUDINARY_CLOUD_NAME = "dkzgdbjd";
-const CLOUDINARY_API_KEY = "12391810684322";
+const CLOUDINARY_CLOUD_NAME = Deno.env.get("CLOUDINARY_CLOUD_NAME") ?? "";
+const CLOUDINARY_API_KEY = Deno.env.get("CLOUDINARY_API_KEY") ?? "";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -88,10 +88,10 @@ serve(async (req) => {
     const timestamp = Math.floor(Date.now() / 1000);
     const paramsToSign = `folder=aitube&resource_type=video&timestamp=${timestamp}&transformation=q_auto,f_auto`;
     
-    // Create signature
+    // Create signature using SHA-1 (required by Cloudinary)
     const encoder = new TextEncoder();
     const data = encoder.encode(paramsToSign + cloudinarySecret);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashBuffer = await crypto.subtle.digest("SHA-1", data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const signature = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 
@@ -122,11 +122,13 @@ serve(async (req) => {
       );
     }
 
-    // Check video duration (max 30 seconds)
+    // Check video duration (max 60 seconds for shorts, 600 for longform)
     const duration = Math.round(cloudinaryResult.duration || 0);
-    if (duration > 30) {
+    const videoType = formData.get("videoType") as string || "shorts";
+    const maxDuration = videoType === "longform" ? 600 : 60;
+    if (duration > maxDuration) {
       return new Response(
-        JSON.stringify({ error: "Video must be 30 seconds or less" }),
+        JSON.stringify({ error: `Video must be ${maxDuration} seconds or less` }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
