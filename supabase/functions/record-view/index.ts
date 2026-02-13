@@ -31,6 +31,22 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
+    // Global rate limit: max 5 views per IP per minute across all videos
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
+    const { data: recentViews } = await supabaseAdmin
+      .from("video_views")
+      .select("id")
+      .eq("viewer_ip", viewerIp)
+      .gte("watched_at", oneMinuteAgo)
+      .limit(5);
+
+    if (recentViews && recentViews.length >= 5) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded" }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Check if this IP has already viewed this video in the last hour
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const { data: existingView } = await supabaseAdmin
