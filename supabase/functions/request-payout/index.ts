@@ -123,14 +123,28 @@ serve(async (req) => {
       );
     }
 
-    // Deduct coins from balance
-    await supabaseAdmin
+    // Deduct coins from balance (CHECK constraint prevents negative balance)
+    const { error: deductError } = await supabaseAdmin
       .from("profiles")
       .update({ 
         coins_balance: profile.coins_balance - coins_amount,
         upi_id 
       })
       .eq("id", profile.id);
+
+    if (deductError) {
+      // Rollback: delete the payout request if coin deduction fails
+      await supabaseAdmin
+        .from("payout_requests")
+        .delete()
+        .eq("id", payoutRequest.id);
+      
+      console.error("Deduct error:", deductError);
+      return new Response(
+        JSON.stringify({ error: "Insufficient coins balance" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Log transaction
     await supabaseAdmin
