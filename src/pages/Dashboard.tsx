@@ -261,7 +261,7 @@ const Dashboard = () => {
                 <TrendingUp className="w-5 h-5 text-green-500" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-foreground">{earnedToday}</p>
+            <p className="text-2xl font-bold text-foreground">+{earnedToday} Coins</p>
             <p className="text-sm text-muted-foreground">Earned Today</p>
           </div>
 
@@ -298,60 +298,60 @@ const Dashboard = () => {
           <div className="space-y-6">
             {/* Video Length Stats & Calculator Row */}
             <div className="grid md:grid-cols-2 gap-6">
-              {/* 60s Video Stats */}
+            {/* 70-20-10 Revenue Split */}
               <div className="glass rounded-xl p-6">
                 <h3 className="font-display text-xl text-foreground mb-4 flex items-center gap-2">
                   <Zap className="w-5 h-5 text-gold" />
-                  60s Video Stats
+                  Revenue Split (per Ad View)
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between py-2 border-b border-border/30">
-                    <span className="text-muted-foreground">Avg views (60s shorts)</span>
-                    <span className="font-bold text-gradient">4.1M views</span>
+                    <span className="text-muted-foreground">Creator (70%)</span>
+                    <span className="font-bold text-green-500">+₹2.80</span>
                   </div>
                   <div className="flex items-center justify-between py-2 border-b border-border/30">
-                    <span className="text-muted-foreground">Sweet spot duration</span>
-                    <span className="font-bold text-gold">45-55 seconds</span>
+                    <span className="text-muted-foreground">Viewer (20%)</span>
+                    <span className="font-bold text-gold">+8 Coins</span>
                   </div>
                   <div className="flex items-center justify-between py-2 border-b border-border/30">
-                    <span className="text-muted-foreground">Virality boost</span>
-                    <span className="font-bold text-green-500">+340%</span>
+                    <span className="text-muted-foreground">Platform (10%)</span>
+                    <span className="font-bold text-muted-foreground">₹0.40</span>
                   </div>
                   <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
                     <p className="text-xs text-muted-foreground">
-                      <span className="text-primary font-medium">Pro tip:</span> 60-second videos get maximum algorithmic boost per YouTube/TikTok data.
+                      <span className="text-primary font-medium">How it works:</span> After each video, a rewarded ad plays. Revenue is auto-split 70-20-10.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Coin Calculator */}
+              {/* Creator Earnings Calculator */}
               <div className="glass rounded-xl p-6">
                 <h3 className="font-display text-xl text-foreground mb-4 flex items-center gap-2">
                   <Calculator className="w-5 h-5 text-gold" />
-                  Earnings Calculator
+                  Creator Earnings (70%)
                 </h3>
                 <div className="space-y-4">
                   <div className="text-center py-4 bg-gold/10 rounded-xl border border-gold/20">
-                    <p className="text-3xl font-bold text-gradient-gold">₹20</p>
-                    <p className="text-sm text-muted-foreground mt-1">per 1,000 views (shorts)</p>
+                    <p className="text-3xl font-bold text-gradient-gold">₹2.80</p>
+                    <p className="text-sm text-muted-foreground mt-1">per view (rewarded ad)</p>
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-center">
                     <div className="p-3 bg-muted rounded-lg">
-                      <p className="text-lg font-bold text-foreground">₹200</p>
+                      <p className="text-lg font-bold text-foreground">₹2,800</p>
+                      <p className="text-xs text-muted-foreground">1K views</p>
+                    </div>
+                    <div className="p-3 bg-muted rounded-lg">
+                      <p className="text-lg font-bold text-foreground">₹28,000</p>
                       <p className="text-xs text-muted-foreground">10K views</p>
                     </div>
                     <div className="p-3 bg-muted rounded-lg">
-                      <p className="text-lg font-bold text-foreground">₹2,000</p>
+                      <p className="text-lg font-bold text-foreground">₹2,80,000</p>
                       <p className="text-xs text-muted-foreground">100K views</p>
                     </div>
-                    <div className="p-3 bg-muted rounded-lg">
-                      <p className="text-lg font-bold text-foreground">₹20,000</p>
-                      <p className="text-xs text-muted-foreground">1M views</p>
-                    </div>
                     <div className="p-3 bg-gradient-gold rounded-lg">
-                      <p className="text-lg font-bold text-secondary-foreground">₹82,000</p>
-                      <p className="text-xs text-secondary-foreground/80">4.1M views (avg)</p>
+                      <p className="text-lg font-bold text-secondary-foreground">₹28,00,000</p>
+                      <p className="text-xs text-secondary-foreground/80">1M views</p>
                     </div>
                   </div>
                 </div>
