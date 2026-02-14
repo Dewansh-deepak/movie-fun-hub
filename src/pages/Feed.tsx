@@ -2,12 +2,13 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
-import { Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Coins } from "lucide-react";
 import { toast } from "sonner";
 import TopBar from "@/components/TopBar";
 import BottomNav from "@/components/BottomNav";
 import VideoActions from "@/components/VideoActions";
 import CreatorInfo from "@/components/CreatorInfo";
+import { preloadAd, showRewardedAd, checkVideoProgress, resetAdState } from "@/services/rewardedAd";
 
 interface Video {
   id: string;
@@ -36,6 +37,8 @@ const Feed = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [likedVideos, setLikedVideos] = useState<Set<string>>(new Set());
   const [category, setCategory] = useState<string>("all");
+  const [adTriggered, setAdTriggered] = useState<Set<string>>(new Set());
+  const [coinToast, setCoinToast] = useState<{ show: boolean; coins: number }>({ show: false, coins: 0 });
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { profile } = useAuth();
@@ -95,25 +98,71 @@ const Feed = () => {
     }
   }, [profile, fetchLikedVideos]);
 
-  // Record view when video changes
+  // Pre-load ad when video changes & record view
   useEffect(() => {
     if (videos.length === 0) return;
     const currentVideo = videos[currentIndex];
     if (!currentVideo) return;
+
+    // Reset ad state for new video
+    resetAdState();
+    // Pre-load ad immediately when video starts
+    preloadAd("videoEnd");
+    console.log(`[ReelsPay Feed] 🎬 Now playing: "${currentVideo.title}" by @${currentVideo.creator.display_name}`);
 
     const recordView = async () => {
       try {
         await supabase.functions.invoke("record-view", {
           body: { video_id: currentVideo.id },
         });
+        console.log(`[ReelsPay Feed] 👁️ View recorded for video: ${currentVideo.id}`);
       } catch (error) {
-        console.error("Failed to record view:", error);
+        console.error("[ReelsPay Feed] ❌ Failed to record view:", error);
       }
     };
 
     const timer = setTimeout(recordView, 3000);
     return () => clearTimeout(timer);
   }, [currentIndex, videos]);
+
+  // Ad trigger: monitor video progress for 90% completion
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const currentVideo = videos[currentIndex];
+    if (!currentVideo) return;
+
+    const handleTimeUpdate = async () => {
+      if (!video.duration || video.duration <= 0) return;
+      
+      const shouldTrigger = checkVideoProgress(video.currentTime, video.duration);
+      
+      if (shouldTrigger && !adTriggered.has(currentVideo.id)) {
+        // Mark as triggered to prevent re-triggering
+        setAdTriggered(prev => new Set(prev).add(currentVideo.id));
+        
+        console.log(`[ReelsPay Feed] 🎯 90% reached — triggering rewarded ad!`);
+        
+        const result = await showRewardedAd(
+          currentVideo.id,
+          profile?.id || null,
+          currentVideo.creator.id
+        );
+        
+        if (result.shown && result.coinsAwarded > 0) {
+          setCoinToast({ show: true, coins: result.coinsAwarded });
+          toast.success(`+${result.coinsAwarded} Coins earned! 🎉`);
+          
+          // Hide coin toast after 3s
+          setTimeout(() => setCoinToast({ show: false, coins: 0 }), 3000);
+        }
+      }
+    };
+
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    return () => video.removeEventListener("timeupdate", handleTimeUpdate);
+  }, [currentIndex, videos, profile, adTriggered]);
 
   const handleScroll = (direction: "up" | "down") => {
     if (direction === "down" && currentIndex < videos.length - 1) {
@@ -321,6 +370,16 @@ const Feed = () => {
 
                   {/* Bottom Gradient */}
                   <div className="absolute bottom-0 left-0 right-0 h-72 bg-gradient-to-t from-cinema-dark via-cinema-dark/60 to-transparent pointer-events-none" />
+
+                  {/* Coin Reward Toast Overlay */}
+                  {coinToast.show && index === currentIndex && (
+                    <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 animate-bounce">
+                      <div className="flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-yellow-500 to-amber-600 shadow-lg">
+                        <Coins className="w-6 h-6 text-white" />
+                        <span className="text-white font-bold text-lg">+{coinToast.coins} Coins!</span>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Video Info */}
                   <div className="absolute bottom-20 left-0 right-16 p-4">
