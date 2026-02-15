@@ -203,7 +203,7 @@ const Index = () => {
             <Logo size="small" />
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2025 Reelspay. {t("madeInIndia")}
+            Reelspay © 2026
           </p>
         </div>
       </footer>
