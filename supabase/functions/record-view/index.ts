@@ -1,14 +1,22 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-forwarded-for",
-};
+const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") || "").split(",").map(s => s.trim()).filter(Boolean);
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.length > 0 && ALLOWED_ORIGINS.includes(origin) ? origin : (ALLOWED_ORIGINS.length === 0 ? "*" : "");
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-forwarded-for, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  };
+}
 
 serve(async (req) => {
+  const cors = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: cors });
   }
 
   try {
@@ -17,11 +25,10 @@ serve(async (req) => {
     if (!video_id) {
       return new Response(
         JSON.stringify({ error: "video_id is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
-    // Get viewer IP from headers
     const viewerIp = req.headers.get("x-forwarded-for")?.split(",")[0] || 
                      req.headers.get("cf-connecting-ip") || 
                      "unknown";
@@ -31,7 +38,6 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Global rate limit: max 5 views per IP per minute across all videos
     const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
     const { data: recentViews } = await supabaseAdmin
       .from("video_views")
@@ -43,11 +49,10 @@ serve(async (req) => {
     if (recentViews && recentViews.length >= 5) {
       return new Response(
         JSON.stringify({ error: "Rate limit exceeded" }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 429, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
-    // Check if this IP has already viewed this video in the last hour
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
     const { data: existingView } = await supabaseAdmin
       .from("video_views")
@@ -60,22 +65,17 @@ serve(async (req) => {
     if (existingView && existingView.length > 0) {
       return new Response(
         JSON.stringify({ success: true, message: "View already recorded" }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 200, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
-    // Get viewer profile ID if logged in
     let viewerId = null;
     const authHeader = req.headers.get("Authorization");
     if (authHeader) {
       const supabaseClient = createClient(
         Deno.env.get("SUPABASE_URL") ?? "",
         Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-        {
-          global: {
-            headers: { Authorization: authHeader },
-          },
-        }
+        { global: { headers: { Authorization: authHeader } } }
       );
       
       const { data: { user } } = await supabaseClient.auth.getUser();
@@ -89,32 +89,27 @@ serve(async (req) => {
       }
     }
 
-    // Record the view
     const { error: insertError } = await supabaseAdmin
       .from("video_views")
-      .insert({
-        video_id,
-        viewer_id: viewerId,
-        viewer_ip: viewerIp,
-      });
+      .insert({ video_id, viewer_id: viewerId, viewer_ip: viewerIp });
 
     if (insertError) {
       console.error("Insert error:", insertError);
       return new Response(
         JSON.stringify({ error: "Failed to record view" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
     return new Response(
       JSON.stringify({ success: true }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...cors, "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("View recording error:", error);
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
     );
   }
 });
