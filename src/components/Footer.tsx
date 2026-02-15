@@ -1,4 +1,4 @@
-import { Play, Instagram, Twitter, Youtube, Heart } from "lucide-react";
+import { Play, Instagram, Twitter, Youtube } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -13,7 +13,7 @@ const Footer = () => {
               </div>
               <div>
                 <h3 className="font-display text-xl text-gradient">
-                  Movie Masti
+                  Reelspay
                 </h3>
               </div>
             </div>
@@ -68,10 +68,7 @@ const Footer = () => {
         {/* Bottom */}
         <div className="pt-8 border-t border-border/30 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-muted-foreground text-sm">
-            © 2024 Movie Masti. All rights reserved.
-          </p>
-          <p className="text-muted-foreground text-sm flex items-center gap-1">
-            Made with <Heart className="w-4 h-4 text-crimson fill-crimson" /> in India
+            Reelspay © 2026. All rights reserved.
           </p>
         </div>
       </div>

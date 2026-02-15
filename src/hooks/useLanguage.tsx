@@ -65,7 +65,7 @@ const translations = {
     joinCommunity: "Join the Creator Community",
     joinCommunityDesc: "Connect with fellow creators, share tips, collaborate on content, and grow together. Reelspay is more than a platform—it's a family.",
     exploreCommunity: "Explore Community",
-    madeInIndia: "Made with ❤️ in India 🇮🇳",
+    madeInIndia: "Reelspay © 2026",
 
     // Auth
     turnCreativity: "Turn your creativity into ₹ with Reelspay",
@@ -201,7 +201,7 @@ const translations = {
     joinCommunity: "क्रिएटर समुदाय से जुड़ें",
     joinCommunityDesc: "साथी क्रिएटर्स से जुड़ें, टिप्स शेयर करें, कंटेंट पर सहयोग करें।",
     exploreCommunity: "समुदाय देखें",
-    madeInIndia: "❤️ के साथ भारत में बनाया 🇮🇳",
+    madeInIndia: "Reelspay © 2026",
 
     turnCreativity: "Reelspay से अपनी क्रिएटिविटी को ₹ में बदलें",
     creatorName: "क्रिएटर नाम",
