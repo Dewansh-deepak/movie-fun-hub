@@ -112,16 +112,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const becomeCreator = async () => {
     if (!profile) return { error: new Error("No profile found") };
+    if (!session) return { error: new Error("Not authenticated") };
     
-    const { error } = await supabase
-      .from("profiles")
-      .update({ is_creator: true })
-      .eq("id", profile.id);
-
-    if (!error) {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/become-creator`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        return { error: new Error(data.error || "Failed to become creator") };
+      }
+      
       setProfile({ ...profile, is_creator: true });
+      return { error: null };
+    } catch (err: any) {
+      return { error: err };
     }
-    return { error };
   };
 
   return (
