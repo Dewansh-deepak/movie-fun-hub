@@ -57,10 +57,16 @@ serve(async (req) => {
     }
 
     // Validate UPI ID format
-    const upiRegex = /^[\w.-]+@[\w.-]+$/;
-    if (!upiRegex.test(upi_id)) {
+    if (typeof upi_id !== "string" || upi_id.length < 5 || upi_id.length > 50) {
       return new Response(
-        JSON.stringify({ error: "Invalid UPI ID format" }),
+        JSON.stringify({ error: "Invalid UPI ID format. Use: username@provider" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    const upiRegex = /^[a-zA-Z0-9][a-zA-Z0-9._-]{1,38}[a-zA-Z0-9]@[a-zA-Z][a-zA-Z0-9]{1,19}$/;
+    if (!upiRegex.test(upi_id) || upi_id.includes("..")) {
+      return new Response(
+        JSON.stringify({ error: "Invalid UPI ID format. Use: username@provider" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
