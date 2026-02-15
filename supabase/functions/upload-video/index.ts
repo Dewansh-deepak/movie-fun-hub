@@ -1,17 +1,25 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") || "").split(",").map(s => s.trim()).filter(Boolean);
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get("origin") || "";
+  const allowedOrigin = ALLOWED_ORIGINS.length > 0 && ALLOWED_ORIGINS.includes(origin) ? origin : (ALLOWED_ORIGINS.length === 0 ? "*" : "");
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  };
+}
 
 const CLOUDINARY_CLOUD_NAME = Deno.env.get("CLOUDINARY_CLOUD_NAME") ?? "";
 const CLOUDINARY_API_KEY = Deno.env.get("CLOUDINARY_API_KEY") ?? "";
 
 serve(async (req) => {
+  const cors = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: cors });
   }
 
   try {
@@ -30,7 +38,7 @@ serve(async (req) => {
     if (authError || !user) {
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 401, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
@@ -44,27 +52,67 @@ serve(async (req) => {
     if (profileError || !profile) {
       return new Response(
         JSON.stringify({ error: "Profile not found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 404, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
     if (!profile.is_creator) {
       return new Response(
         JSON.stringify({ error: "You must be a creator to upload videos" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 403, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
     const formData = await req.formData();
     const videoFile = formData.get("video") as File;
-    const title = formData.get("title") as string;
-    const description = formData.get("description") as string;
+    const title = (formData.get("title") as string || "").trim();
+    const description = (formData.get("description") as string || "").trim();
     const category = formData.get("category") as string;
 
     if (!videoFile || !title || !category) {
       return new Response(
         JSON.stringify({ error: "Video, title, and category are required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate title and description length
+    if (title.length < 3 || title.length > 100) {
+      return new Response(
+        JSON.stringify({ error: "Title must be between 3 and 100 characters" }),
+        { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+      );
+    }
+    if (description && description.length > 500) {
+      return new Response(
+        JSON.stringify({ error: "Description must be 500 characters or less" }),
+        { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate category
+    const validCategories = ["drama", "horror", "comedy", "romance"];
+    if (!validCategories.includes(category)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid category" }),
+        { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate file type via magic bytes
+    const fileBytes = new Uint8Array(await videoFile.slice(0, 12).arrayBuffer());
+    const isValidVideo =
+      // MP4 (ftyp box)
+      (fileBytes[4] === 0x66 && fileBytes[5] === 0x74 && fileBytes[6] === 0x79 && fileBytes[7] === 0x70) ||
+      // WebM
+      (fileBytes[0] === 0x1A && fileBytes[1] === 0x45 && fileBytes[2] === 0xDF && fileBytes[3] === 0xA3) ||
+      // MOV (also ftyp)
+      (fileBytes[4] === 0x66 && fileBytes[5] === 0x74 && fileBytes[6] === 0x79 && fileBytes[7] === 0x70);
+
+    if (!isValidVideo) {
+      return new Response(
+        JSON.stringify({ error: "Invalid video file format. Supported: MP4, WebM, MOV" }),
+        { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
@@ -74,7 +122,7 @@ serve(async (req) => {
     if (videoFile.size > maxFileSize * 1024 * 1024) {
       return new Response(
         JSON.stringify({ error: `Video file too large (max ${maxFileSize}MB)` }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
@@ -88,15 +136,13 @@ serve(async (req) => {
       });
       return new Response(
         JSON.stringify({ error: "Cloudinary not configured" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
     const timestamp = Math.floor(Date.now() / 1000);
-    // Only sign params that are sent as form fields (alphabetical order, no resource_type)
     const paramsToSign = `folder=reelspay&timestamp=${timestamp}`;
     
-    // Create signature using SHA-1 (required by Cloudinary)
     const encoder = new TextEncoder();
     const data = encoder.encode(paramsToSign + cloudinarySecret);
     const hashBuffer = await crypto.subtle.digest("SHA-1", data);
@@ -112,10 +158,7 @@ serve(async (req) => {
 
     const cloudinaryResponse = await fetch(
       `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`,
-      {
-        method: "POST",
-        body: uploadFormData,
-      }
+      { method: "POST", body: uploadFormData }
     );
 
     const cloudinaryResult = await cloudinaryResponse.json();
@@ -124,27 +167,34 @@ serve(async (req) => {
       console.error("Cloudinary error:", cloudinaryResult);
       return new Response(
         JSON.stringify({ error: "Failed to upload video to cloud" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
-    // Check video duration (max 60 seconds for shorts, 600 for longform)
+    // Validate Cloudinary response structure
+    if (!cloudinaryResult.public_id || !cloudinaryResult.secure_url) {
+      console.error("Invalid Cloudinary response structure");
+      return new Response(
+        JSON.stringify({ error: "Failed to process uploaded video" }),
+        { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Check video duration
     const duration = Math.round(cloudinaryResult.duration || 0);
     const maxDuration = videoType === "longform" ? 600 : 60;
     if (duration > maxDuration) {
       return new Response(
         JSON.stringify({ error: `Video must be ${maxDuration} seconds or less` }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 400, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
-    // Generate thumbnail URL
     const thumbnailUrl = cloudinaryResult.secure_url.replace(
       "/video/upload/",
       "/video/upload/so_0,w_400,h_720,c_fill,f_jpg/"
     );
 
-    // Save video to database
     const { data: video, error: videoError } = await supabaseClient
       .from("videos")
       .insert({
@@ -164,19 +214,19 @@ serve(async (req) => {
       console.error("Database error:", videoError);
       return new Response(
         JSON.stringify({ error: "Failed to save video" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 500, headers: { ...cors, "Content-Type": "application/json" } }
       );
     }
 
     return new Response(
       JSON.stringify({ success: true, video }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 200, headers: { ...cors, "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("Upload error:", error);
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
     );
   }
 });
