@@ -1,7 +1,7 @@
 // AdMob Configuration (public identifiers)
 export const ADMOB_CONFIG = {
   appId: "ca-app-pub-9001654710646663~4401746878",
-  rewardedAdUnitId: "ca-app-pub-9001654710646663/3545505361", // Updated rewarded ad unit
+  rewardedAdUnitId: "ca-app-pub-9001654710646663/4096762606", // Updated rewarded ad unit
 } as const;
 
 // Test Device IDs for development
