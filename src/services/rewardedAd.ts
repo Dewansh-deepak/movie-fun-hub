@@ -1,4 +1,4 @@
-import { ADMOB_CONFIG, REVENUE_SPLIT, ADMOB_TEST_DEVICES } from "@/config/admob";
+import { ADMOB_CONFIG, REVENUE_SPLIT, ADMOB_TEST_DEVICES, IS_TEST_MODE } from "@/config/admob";
 import { supabase } from "@/integrations/supabase/client";
 
 // Ad state management
@@ -7,6 +7,7 @@ let isAdShowing = false;
 
 // Log test device IDs on service init
 console.log("[ReelsPay AdMob] 🔧 Rewarded Ad Service Initialized");
+console.log("[ReelsPay AdMob] 🚦 MODE:", IS_TEST_MODE ? "✅ TEST MODE (no real ads)" : "🔴 PRODUCTION");
 console.log("[ReelsPay AdMob] 🎁 Active Ad Unit ID:", ADMOB_CONFIG.rewardedAdUnitId);
 console.log("[ReelsPay AdMob] 🧪 Test Device IDs:", ADMOB_TEST_DEVICES);
 console.log("[ReelsPay AdMob] 💰 Revenue Split → Creator:", REVENUE_SPLIT.creator + "% | Viewer:", REVENUE_SPLIT.user + "% | Platform:", REVENUE_SPLIT.platform + "%");
