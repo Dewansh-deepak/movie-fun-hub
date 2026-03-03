@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useTheme } from "@/hooks/useTheme";
 import {
   Sheet,
   SheetContent,
@@ -28,6 +29,7 @@ import {
   History,
   UserPlus,
   Moon,
+  Sun,
   Settings,
   LogOut,
   ChevronRight,
@@ -40,7 +42,8 @@ const SideMenu = () => {
   const navigate = useNavigate();
   const { profile, signOut, session } = useAuth();
   const { t } = useLanguage();
-  const [darkMode, setDarkMode] = useState(true);
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const [open, setOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
@@ -162,9 +165,9 @@ const SideMenu = () => {
 
           <div className="p-4 border-t border-border/30 space-y-1">
             <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors">
-              <Moon className="w-5 h-5" />
+              {isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
               <span className="flex-1 text-left font-medium">{t("darkMode")}</span>
-              <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+              <Switch checked={isDark} onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")} />
             </div>
 
             <button
