@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
 
 type Theme = "light" | "dark" | "system";
 
@@ -6,6 +6,7 @@ interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   resolvedTheme: "light" | "dark";
+  toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -13,41 +14,63 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 const getSystemTheme = (): "light" | "dark" =>
   window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 
+const applyTheme = (resolved: "light" | "dark") => {
+  const root = document.documentElement;
+  root.classList.remove("light", "dark");
+  root.classList.add(resolved);
+  root.setAttribute("data-theme", resolved);
+  root.style.colorScheme = resolved;
+
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) {
+    meta.setAttribute("content", resolved === "dark" ? "#0A0A0F" : "#F5F3FF");
+  }
+};
+
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
-    const stored = localStorage.getItem("reelspay-theme") as Theme | null;
-    return stored || "dark";
+    try {
+      const stored = localStorage.getItem("reelspay-theme") as Theme | null;
+      return stored || "dark";
+    } catch {
+      return "dark";
+    }
   });
 
   const resolvedTheme = theme === "system" ? getSystemTheme() : theme;
 
+  // Apply theme immediately on mount and on every change
   useEffect(() => {
-    const root = document.documentElement;
-    root.classList.remove("light", "dark");
-    root.classList.add(resolvedTheme);
+    applyTheme(resolvedTheme);
+    console.log(`[Theme] Applied: ${resolvedTheme} (setting: ${theme})`);
+  }, [resolvedTheme, theme]);
 
-    // Update meta theme-color for status bar
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) {
-      meta.setAttribute("content", resolvedTheme === "dark" ? "#0A0A0F" : "#F5F3FF");
-    }
-  }, [resolvedTheme]);
-
+  // Listen for system theme changes
   useEffect(() => {
     if (theme !== "system") return;
     const mql = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = () => setThemeState("system"); // triggers re-render
+    const handler = () => {
+      const newResolved = getSystemTheme();
+      applyTheme(newResolved);
+    };
     mql.addEventListener("change", handler);
     return () => mql.removeEventListener("change", handler);
   }, [theme]);
 
-  const setTheme = (t: Theme) => {
-    localStorage.setItem("reelspay-theme", t);
+  const setTheme = useCallback((t: Theme) => {
+    try {
+      localStorage.setItem("reelspay-theme", t);
+    } catch {}
     setThemeState(t);
-  };
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    const next = resolvedTheme === "dark" ? "light" : "dark";
+    setTheme(next);
+  }, [resolvedTheme, setTheme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
