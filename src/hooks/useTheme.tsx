@@ -23,7 +23,7 @@ const applyTheme = (resolved: "light" | "dark") => {
 
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) {
-    meta.setAttribute("content", resolved === "dark" ? "#0A0A0F" : "#F5F3FF");
+    meta.setAttribute("content", resolved === "dark" ? "#0F0F0F" : "#FAFAFA");
   }
 };
 
