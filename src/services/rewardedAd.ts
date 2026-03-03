@@ -1,28 +1,36 @@
 // ============================================================
-// ✅ ADMOB TEST MODE — PWA Web Simulation
-// Test Rewarded ID: ca-app-pub-3940256099942544/5224354917
-// Trigger: 90% video completion → 8 coins reward
+// ✅ REELSPAY AUTO REWARDED AD — 90% Trigger
+// Median.co AdMob bridge + PWA web fallback
+// Trigger: 90% video completion → automatic rewarded ad
 // ============================================================
 
-const TEST_REWARDED_AD_UNIT = "ca-app-pub-3940256099942544/5224354917";
 const COINS_PER_VIEW = 8;
-let adReady = false;
 let adShownForCurrentVideo = false;
 
-console.log("[ReelsPay AdMob] ✅ TEST MODE ACTIVE — Web PWA Simulation");
-console.log("[ReelsPay AdMob] Test Device ID: WEB_TEST_MODE");
-console.log("[ReelsPay AdMob] 🎁 Test Rewarded Ad Unit:", TEST_REWARDED_AD_UNIT);
+// Detect Median.co native environment
+const isMedianApp = (): boolean => {
+  return typeof (window as any).median !== "undefined";
+};
+
+console.log("[ReelsPay Ad] Environment:", isMedianApp() ? "Median.co APK" : "Web/PWA");
 
 /**
- * Pre-load ad — simulates ad preload
+ * Pre-load ad — calls Median.co bridge or no-op for web
  */
 export const preloadAd = (_adType: "videoEnd" | "appOpen" = "videoEnd") => {
-  adReady = true;
-  console.log("[ReelsPay AdMob] 📦 Ad preloaded (test simulation)");
+  if (isMedianApp()) {
+    try {
+      (window as any).median?.admob?.showRewarded?.({ cached: true });
+      console.log("[ReelsPay Ad] 📦 Median.co rewarded ad cached");
+    } catch (e) {
+      console.log("[ReelsPay Ad] Cache not available, will load on trigger");
+    }
+  }
 };
 
 /**
- * Show rewarded ad — simulates showing ad and awards 8 coins
+ * Show rewarded ad — auto-triggered at 90% video completion
+ * Uses Median.co AdMob bridge in APK, simulates in web
  */
 export const showRewardedAd = async (
   videoId: string,
@@ -33,20 +41,57 @@ export const showRewardedAd = async (
     return { shown: false, coinsAwarded: 0 };
   }
 
-  console.log("[ReelsPay AdMob] 🎯 Ad Request Sent");
-  console.log(`[ReelsPay AdMob] Video: ${videoId} | Viewer: ${viewerId} | Creator: ${creatorId}`);
-  console.log("[ReelsPay AdMob] Test Device ID: WEB_TEST_MODE");
+  console.log(`[ReelsPay Ad] 🎯 Auto-trigger | Video: ${videoId}`);
 
-  // Simulate ad display delay
-  await new Promise((r) => setTimeout(r, 500));
+  if (isMedianApp()) {
+    // Median.co native AdMob bridge
+    try {
+      const median = (window as any).median;
 
-  adShownForCurrentVideo = true;
-  console.log(`[ReelsPay AdMob] ✅ Test ad shown — +${COINS_PER_VIEW} coins awarded (placeholder)`);
-  return { shown: true, coinsAwarded: COINS_PER_VIEW };
+      // Set up reward callback before showing
+      const rewardPromise = new Promise<boolean>((resolve) => {
+        const timeout = setTimeout(() => resolve(false), 30000);
+
+        // Median.co fires this callback on reward
+        (window as any).admob_reward = (data: any) => {
+          clearTimeout(timeout);
+          console.log("[ReelsPay Ad] ✅ Median.co reward callback:", data);
+          resolve(true);
+        };
+
+        // Median.co fires this on ad close without reward
+        (window as any).admob_close = () => {
+          clearTimeout(timeout);
+          resolve(false);
+        };
+      });
+
+      median.admob.showRewarded();
+      console.log("[ReelsPay Ad] 📺 Median.co rewarded ad shown");
+
+      const rewarded = await rewardPromise;
+      if (rewarded) {
+        adShownForCurrentVideo = true;
+        console.log(`[ReelsPay Ad] ✅ +${COINS_PER_VIEW} coins awarded`);
+        return { shown: true, coinsAwarded: COINS_PER_VIEW };
+      }
+
+      return { shown: true, coinsAwarded: 0 };
+    } catch (error) {
+      console.error("[ReelsPay Ad] Median.co ad error:", error);
+      return { shown: false, coinsAwarded: 0 };
+    }
+  } else {
+    // Web/PWA simulation — seamless, no UI interruption
+    await new Promise((r) => setTimeout(r, 300));
+    adShownForCurrentVideo = true;
+    console.log(`[ReelsPay Ad] ✅ Web simulation — +${COINS_PER_VIEW} coins (test)`);
+    return { shown: true, coinsAwarded: COINS_PER_VIEW };
+  }
 };
 
 /**
- * Check video progress — returns true at 90% completion
+ * Check video progress — returns true at 90% completion (auto-trigger)
  */
 export const checkVideoProgress = (
   currentTime: number,
@@ -55,8 +100,7 @@ export const checkVideoProgress = (
   if (duration <= 0) return false;
   const progress = currentTime / duration;
   if (progress >= 0.9 && !adShownForCurrentVideo) {
-    console.log("[ReelsPay AdMob] 📊 90% reached — triggering ad");
-    console.log("Ad Request Sent");
+    console.log("[ReelsPay Ad] 📊 90% reached — auto-triggering rewarded ad");
     return true;
   }
   return false;
@@ -66,7 +110,5 @@ export const checkVideoProgress = (
  * Reset ad state for new video
  */
 export const resetAdState = () => {
-  adReady = false;
   adShownForCurrentVideo = false;
-  console.log("[ReelsPay AdMob] 🔄 Ad state reset for next video");
 };
