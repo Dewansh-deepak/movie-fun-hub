@@ -42,7 +42,7 @@ const SideMenu = () => {
   const navigate = useNavigate();
   const { profile, signOut, session } = useAuth();
   const { t } = useLanguage();
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme, toggleTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const [open, setOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -164,11 +164,14 @@ const SideMenu = () => {
           </div>
 
           <div className="p-4 border-t border-border/30 space-y-1">
-            <div className="flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors">
-              {isDark ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+            <button
+              onClick={() => toggleTheme()}
+              className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted transition-colors"
+            >
+              {isDark ? <Moon className="w-5 h-5 text-yellow-400" /> : <Sun className="w-5 h-5 text-orange-500" />}
               <span className="flex-1 text-left font-medium">{t("darkMode")}</span>
               <Switch checked={isDark} onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")} />
-            </div>
+            </button>
 
             <button
               onClick={() => { setOpen(false); navigate("/settings"); }}
