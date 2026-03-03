@@ -4,136 +4,137 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* AITube Design System - Instagram-style creator platform with cash theme */
-
 @layer base {
-  /* Light theme (default) */
+  /* Light theme — crisp & clean */
   :root {
-    --background: 270 10% 97%;
-    --foreground: 270 15% 10%;
+    --background: 0 0% 98%;
+    --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
-    --card-foreground: 270 15% 10%;
+    --card-foreground: 0 0% 0%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 270 15% 10%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 280 85% 55%;
+    --primary: 34 100% 48%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 45 95% 55%;
-    --secondary-foreground: 270 15% 6%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
 
-    --muted: 270 10% 92%;
-    --muted-foreground: 270 10% 40%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 320 80% 55%;
+    --accent: 18 100% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 270 10% 85%;
-    --input: 270 10% 85%;
-    --ring: 280 85% 55%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 34 100% 48%;
 
     --radius: 1rem;
 
-    /* Custom tokens */
-    --purple: 280 85% 55%;
-    --purple-light: 280 85% 65%;
-    --purple-dark: 280 75% 45%;
-    --gold: 45 95% 50%;
-    --gold-light: 45 100% 60%;
-    --gold-dark: 40 90% 40%;
-    --pink: 320 80% 55%;
-    --orange: 25 95% 55%;
-    --cinema-dark: 270 10% 95%;
-    --cinema-surface: 270 10% 93%;
+    /* Brand tokens */
+    --purple: 34 100% 48%;
+    --purple-light: 18 100% 60%;
+    --purple-dark: 34 100% 38%;
+    --gold: 34 100% 48%;
+    --gold-light: 18 100% 60%;
+    --gold-dark: 34 100% 38%;
+    --pink: 18 100% 60%;
+    --orange: 18 100% 60%;
+    --cinema-dark: 0 0% 94%;
+    --cinema-surface: 0 0% 96%;
 
     /* Gradients */
-    --gradient-instagram: linear-gradient(135deg, hsl(280, 85%, 55%) 0%, hsl(320, 80%, 55%) 50%, hsl(25, 95%, 55%) 100%);
-    --gradient-purple: linear-gradient(135deg, hsl(280, 85%, 55%) 0%, hsl(320, 80%, 55%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(45, 95%, 55%) 0%, hsl(25, 95%, 55%) 100%);
-    --gradient-dark: linear-gradient(180deg, transparent 0%, hsl(270, 10%, 95%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(270, 10%, 96%) 100%);
+    --gradient-instagram: linear-gradient(135deg, hsl(34, 100%, 48%) 0%, hsl(18, 100%, 60%) 100%);
+    --gradient-purple: linear-gradient(135deg, hsl(34, 100%, 48%) 0%, hsl(18, 100%, 60%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(34, 100%, 48%) 0%, hsl(18, 100%, 60%) 100%);
+    --gradient-dark: linear-gradient(180deg, transparent 0%, hsl(0, 0%, 98%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 97%) 100%);
 
     /* Shadows */
-    --shadow-glow: 0 0 40px hsl(280, 85%, 55%, 0.15);
-    --shadow-gold: 0 0 30px hsl(45, 95%, 55%, 0.15);
-    --shadow-card: 0 8px 32px hsl(0, 0%, 0%, 0.08);
-    --shadow-elevated: 0 20px 60px hsl(0, 0%, 0%, 0.12);
+    --shadow-glow: 0 0 30px hsla(34, 100%, 48%, 0.15);
+    --shadow-gold: 0 0 25px hsla(34, 100%, 48%, 0.12);
+    --shadow-card: 0 4px 20px hsla(0, 0%, 0%, 0.06);
+    --shadow-elevated: 0 12px 40px hsla(0, 0%, 0%, 0.1);
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 270 15% 10%;
-    --sidebar-primary: 280 85% 55%;
+    --sidebar-foreground: 0 0% 0%;
+    --sidebar-primary: 34 100% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 270 10% 92%;
-    --sidebar-accent-foreground: 270 15% 10%;
-    --sidebar-border: 270 10% 85%;
-    --sidebar-ring: 280 85% 55%;
+    --sidebar-accent: 0 0% 94%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-ring: 34 100% 48%;
   }
 
-  /* Dark theme */
+  /* Dark theme — YouTube/Instagram premium dark */
   .dark {
-    --background: 270 15% 6%;
-    --foreground: 0 0% 98%;
+    --background: 0 0% 6%;
+    --foreground: 0 0% 100%;
 
-    --card: 270 12% 10%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 9.4%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 270 12% 12%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 9.4%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 280 85% 60%;
+    --primary: 34 100% 48%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 45 95% 55%;
-    --secondary-foreground: 270 15% 6%;
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 270 10% 18%;
-    --muted-foreground: 270 10% 60%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 69%;
 
-    --accent: 320 80% 55%;
+    --accent: 18 100% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 270 10% 20%;
-    --input: 270 10% 20%;
-    --ring: 280 85% 60%;
+    --border: 0 0% 19%;
+    --input: 0 0% 19%;
+    --ring: 34 100% 48%;
 
-    --purple: 280 85% 60%;
-    --purple-light: 280 85% 70%;
-    --purple-dark: 280 75% 45%;
-    --gold: 45 95% 55%;
-    --gold-light: 45 100% 65%;
-    --gold-dark: 40 90% 45%;
-    --pink: 320 80% 55%;
-    --orange: 25 95% 55%;
-    --cinema-dark: 270 15% 4%;
-    --cinema-surface: 270 12% 12%;
+    /* Brand tokens */
+    --purple: 34 100% 48%;
+    --purple-light: 18 100% 60%;
+    --purple-dark: 34 100% 38%;
+    --gold: 34 100% 48%;
+    --gold-light: 18 100% 60%;
+    --gold-dark: 34 100% 38%;
+    --pink: 18 100% 60%;
+    --orange: 18 100% 60%;
+    --cinema-dark: 0 0% 4%;
+    --cinema-surface: 0 0% 9.4%;
 
-    --gradient-instagram: linear-gradient(135deg, hsl(280, 85%, 60%) 0%, hsl(320, 80%, 55%) 50%, hsl(25, 95%, 55%) 100%);
-    --gradient-purple: linear-gradient(135deg, hsl(280, 85%, 60%) 0%, hsl(320, 80%, 55%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(45, 95%, 55%) 0%, hsl(25, 95%, 55%) 100%);
-    --gradient-dark: linear-gradient(180deg, transparent 0%, hsl(270, 15%, 4%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(270, 12%, 14%) 0%, hsl(270, 12%, 8%) 100%);
+    /* Gradients */
+    --gradient-instagram: linear-gradient(135deg, hsl(34, 100%, 48%) 0%, hsl(18, 100%, 60%) 100%);
+    --gradient-purple: linear-gradient(135deg, hsl(34, 100%, 48%) 0%, hsl(18, 100%, 60%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(34, 100%, 48%) 0%, hsl(18, 100%, 60%) 100%);
+    --gradient-dark: linear-gradient(180deg, transparent 0%, hsl(0, 0%, 4%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 14%) 0%, hsl(0, 0%, 8%) 100%);
 
-    --shadow-glow: 0 0 40px hsl(280, 85%, 60%, 0.3);
-    --shadow-gold: 0 0 30px hsl(45, 95%, 55%, 0.3);
-    --shadow-card: 0 8px 32px hsl(0, 0%, 0%, 0.4);
-    --shadow-elevated: 0 20px 60px hsl(0, 0%, 0%, 0.6);
+    /* Shadows */
+    --shadow-glow: 0 0 40px hsla(34, 100%, 48%, 0.25);
+    --shadow-gold: 0 0 30px hsla(34, 100%, 48%, 0.2);
+    --shadow-card: 0 4px 24px hsla(0, 0%, 0%, 0.5);
+    --shadow-elevated: 0 16px 48px hsla(0, 0%, 0%, 0.7);
 
-    --sidebar-background: 270 12% 10%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 280 85% 60%;
+    --sidebar-background: 0 0% 9.4%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 34 100% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 270 10% 18%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 270 10% 20%;
-    --sidebar-ring: 280 85% 60%;
+    --sidebar-accent: 0 0% 18%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 19%;
+    --sidebar-ring: 34 100% 48%;
   }
 }
 
@@ -196,22 +197,39 @@
     box-shadow: var(--shadow-elevated);
   }
 
+  /* Glassmorphism */
   .glass {
     @apply backdrop-blur-xl;
-    background: hsla(270, 10%, 97%, 0.85);
+    background: hsla(0, 0%, 100%, 0.85);
+    border: 1px solid hsla(0, 0%, 100%, 0.12);
   }
 
   .dark .glass {
-    background: hsla(270, 12%, 12%, 0.85);
+    background: hsla(0, 0%, 9%, 0.88);
+    border: 1px solid hsla(0, 0%, 100%, 0.06);
   }
 
   .glass-dark {
     @apply backdrop-blur-xl;
-    background: hsla(270, 10%, 97%, 0.92);
+    background: hsla(0, 0%, 100%, 0.92);
   }
 
   .dark .glass-dark {
-    background: hsla(270, 15%, 6%, 0.9);
+    background: hsla(0, 0%, 6%, 0.92);
+    border-top: 1px solid hsla(0, 0%, 100%, 0.06);
+  }
+
+  /* Glass card for elevated surfaces */
+  .glass-card {
+    @apply backdrop-blur-lg rounded-2xl;
+    background: hsla(0, 0%, 100%, 0.9);
+    box-shadow: var(--shadow-card);
+  }
+
+  .dark .glass-card {
+    background: hsla(0, 0%, 14%, 0.8);
+    border: 1px solid hsla(0, 0%, 100%, 0.05);
+    box-shadow: var(--shadow-card);
   }
 
   /* Cash flying animation */
@@ -230,7 +248,6 @@
     animation: fly-cash 1.5s ease-out infinite;
   }
 
-  /* Smooth scroll snap for reels */
   .snap-mandatory {
     scroll-snap-type: y mandatory;
   }
@@ -239,7 +256,6 @@
     scroll-snap-align: start;
   }
 
-  /* Hide scrollbar */
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;

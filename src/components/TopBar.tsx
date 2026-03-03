@@ -25,7 +25,7 @@ const TopBar = ({ showCategories, category, setCategory }: TopBarProps) => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 safe-area-top" style={{ background: 'linear-gradient(180deg, #1a1a1a 0%, #333333 100%)' }}>
+    <header className="fixed top-0 left-0 right-0 z-50 safe-area-top bg-background border-b border-border/30 dark:bg-[#0F0F0F]">
       <div className="flex items-center justify-between h-14 px-4">
         <SideMenu />
         <Logo size="small" />
