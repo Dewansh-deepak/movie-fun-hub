@@ -27,8 +27,8 @@ const Index = () => {
       {/* Hero Section */}
       <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-cinema-dark via-background to-cinema-surface" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(280,85%,60%,0.15),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(320,80%,55%,0.15),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(34,100%,48%,0.1),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(18,100%,60%,0.1),transparent_50%)]" />
 
         <div className="relative z-10 container mx-auto px-4 text-center">
           <div className="flex justify-center mb-8">
