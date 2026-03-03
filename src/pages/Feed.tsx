@@ -66,10 +66,12 @@ const Feed = () => {
       console.error("Error fetching videos:", error);
       toast.error("Failed to load videos");
     } else if (data) {
-      const transformedVideos = data.map((video: any) => ({
-        ...video,
-        creator: Array.isArray(video.creator) ? video.creator[0] : video.creator
-      }));
+      const transformedVideos = data
+        .map((video: any) => ({
+          ...video,
+          creator: Array.isArray(video.creator) ? video.creator[0] : video.creator
+        }))
+        .filter((video: any) => video.creator != null);
       setVideos(transformedVideos);
     }
     setLoading(false);
