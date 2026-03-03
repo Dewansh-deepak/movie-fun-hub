@@ -54,17 +54,15 @@ const Index = () => {
               <Play className="w-5 h-5 fill-current" />
               {t("startWatching")}
             </Button>
-            {!user && (
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => navigate("/auth")}
-                className="gap-2 text-lg px-8 border-primary text-primary hover:bg-primary/10"
-              >
-                <Video className="w-5 h-5" />
-                {t("becomeCreator")}
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => navigate(user ? "/dashboard" : "/auth")}
+              className="gap-2 text-lg px-8 border-primary text-primary hover:bg-primary/10"
+            >
+              <Video className="w-5 h-5" />
+              {user ? t("goToDashboard") : t("becomeCreator")}
+            </Button>
           </div>
 
           <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
