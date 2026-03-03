@@ -340,6 +340,52 @@ export type Database = {
       }
     }
     Views: {
+      creator_video_stats: {
+        Row: {
+          coins_awarded: boolean | null
+          id: string | null
+          video_id: string | null
+          viewer_id: string | null
+          watched_at: string | null
+        }
+        Insert: {
+          coins_awarded?: boolean | null
+          id?: string | null
+          video_id?: string | null
+          viewer_id?: string | null
+          watched_at?: string | null
+        }
+        Update: {
+          coins_awarded?: boolean | null
+          id?: string | null
+          video_id?: string | null
+          viewer_id?: string | null
+          watched_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_views_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "videos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_views_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_views_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_profiles: {
         Row: {
           avatar_url: string | null
